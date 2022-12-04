@@ -18,11 +18,13 @@ class Task:
 
 
 class Robot:
-    def __init__(self, battery, BCR, v_a, c, dist_req, final_dest, dist_pref, cost_bound, time_bound, ID, tasksqueue):
+    def __init__(self, battery, BCR, v_a, c, dist_req, final_dest, dist_pref, time_pref, cost_bound, time_bound, ID, tasksqueue):
         self.battery = battery
         self.BCR = BCR
         self.v_a = v_a
         self.c = c
+        self.dist_pref = dist_pref
+        self.time_pref = time_pref
         self.ID = ID
         self.tasksqueue = tasksqueue
         self.dist_req = 0
@@ -47,19 +49,20 @@ class Robot:
     def get_ID(self):
         return self.ID
 
-    def get_va():
+    def get_va(self):
         return self.v_a
 
-    def get_distpref():
+    def get_distpref(self):
         return self.dist_pref
-
-    def get_distreq():
+    def get_timepref(self):
+        return self.time_pref
+    def get_distreq(self):
         return self.dist_req
 
     def set_distreq(self, d):
         self.dist_req = d
 
-    def get_finaldest():
+    def get_finaldest(self):
         return self.final_dest
 
     def set_finaldest(self, d):
@@ -81,16 +84,16 @@ def bid_coop(r, t, d):
     BCR = r.get_BCR()
     c = r.get_c()
     d_p = r.get_distpref()
-    dist = r.get_distreq
+    dist = r.get_distreq()
     v_a = r.get_va()
     t_bound = r.get_time_bound()
-    time_actual = v_a * (dist + d)
-    time_pref = v_a * (dist + d_p)
-    bid_time = 10 * np.sinc(time_actual/t_bound-time_pref)
+    time_actual =  (dist + d)/v_a
+    time_pref = (d_p)/v_a
+    bid_time = 10 * np.sinc((time_actual-time_pref)/t_bound)
     cost_actual = BCR*(d+dist)*c
-    cost_pref = BCR*(d+d_p)*c
-    c_bound = r.get_cost_bound
-    bid_cost = 10 * np.sinc(cost_actual/c_bound-cost_pref)
+    cost_pref = BCR*(d_p)*c
+    c_bound = r.get_cost_bound()
+    bid_cost = 10 * np.sinc((cost_actual-cost_pref)/c_bound)
     return bid_cost + bid_time
 def distance(l1, l2):
     distance = math.sqrt(pow((l1[0] - l2[0]), 2) + pow((l1[1] - l2[1]), 2))
@@ -109,7 +112,7 @@ def tc_in_calc(self, r, t):  # calculate increase in team cost by comparing loca
 
 def ssi_auction(R, T):
     winning_bid = 0
-    r1 = Robot(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, [])
+    r1 = Robot(0, 0, 0, 0, 0, 0, 0, 1, 1, 0,0, [])
     winning_robot = r1
     for r in R:
         r.set_taskqueue([])
@@ -117,8 +120,8 @@ def ssi_auction(R, T):
         l = t.get_location()
         for r in R:
             d = distance(l, [0, 0])
-            bid = bid_selfish(r, t, d)
-            print(bid)
+            bid = bid_coop(r, t, d)
+            print(str(r.get_ID()) + ' ' + str(bid))
             if bid > winning_bid:
                 winning_bid = bid
                 winning_robot = r
@@ -129,7 +132,7 @@ def ssi_auction(R, T):
 
 def ssi_auction_hill(R, T):
     winning_bid = 0
-    r1 = Robot(0, 0, 0, 0, 0, 0, 0, 0, [])
+    r1 = Robot(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [])
     winning_robot = r1
     count = length(R)
     teamcost = 0  # total distance
@@ -217,7 +220,7 @@ def kmeans(k, queue):
 
 def comb_auction(R, T):
     winning_bid = 0
-    r1 = Robot(0, 0, 0, 0, 0, 0, 0, 0, [])
+    r1 = Robot(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [])
     winning_robot = r1
     for r in R:
         r.set_taskqueue([])
@@ -225,7 +228,7 @@ def comb_auction(R, T):
         l = p[0].get_location()  # gets location of centroid
         for r in R:
             d = distance(l, [0, 0])
-            bid = bid_selfish(r, p[0], d)  # use centroid of package for bid
+            bid = bid_coop(r, p[0], d)  # use centroid of package for bid
             print(bid)
             if bid > winning_bid:
                 winning_bid = bid
@@ -234,11 +237,15 @@ def comb_auction(R, T):
             winning_robot.appendTask(t)
         winning_robot = None
         winning_bid = 0
+#battery should always be by percent. BCR is battery consumption rate per unit distance.
+#v_a is average velocity traveled by car. c is cost for each percent battery
+#dist_req task queue should always be initialized to 0 
+r1 = Robot(100, .5, 5, .5, 0, 1, 25, 8, 30, 30, 1,[])
+r2 = Robot(100, .5, 5, .5, 0, 1, 0, 0, 30, 30, 2,[])
+r3 = Robot(100, .5, 5, .5, 0, 1, 50, 25, 30, 30, 3,[])
 
-
-r = Robot(50, 1, 1, 1, 1, 1, 1, 1, 1, 1, [])
-t1 = Task(10, [0, 0])
-t2 = Task(15, [1, 2])
-t3 = Task(20, [3, 4])
+t1 = Task(10, [1, 2])
+t2 = Task(15, [25, 25])
+t3 = Task(20, [50, 50])
 queue = [t1, t2, t3]
-ssi_auction([r], queue)
+ssi_auction([r1, r2, r3], queue)
