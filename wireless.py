@@ -240,9 +240,9 @@ def comb_auction(R, T):
 #battery should always be by percent. BCR is battery consumption rate per unit distance.
 #v_a is average velocity traveled by car. c is cost for each percent battery
 #dist_req task queue should always be initialized to 0 
-r1 = Robot(100, .5, 5, .5, 0, 1, 25, 8, 30, 30, 1,[])
-r2 = Robot(100, .5, 5, .5, 0, 1, 0, 0, 30, 30, 2,[])
-r3 = Robot(100, .5, 5, .5, 0, 1, 50, 25, 30, 30, 3,[])
+r1 = Robot(100, .5, 3, .5, 0, 1, 25, 8, 30, 30, 1,[])
+r2 = Robot(100, .75, 5, .5, 0, 1, 0, 0, 30, 30, 2,[])
+r3 = Robot(100, .35, 2, .5, 0, 1, 50, 25, 30, 30, 3,[])
 
 t1 = Task(10, [1, 2])
 t2 = Task(15, [25, 25])
