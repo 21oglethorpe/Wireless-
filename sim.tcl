@@ -28,7 +28,7 @@ $topo load_flatgrid $val(x) $val(y)
 #This is heresy to Christianity 
 create-god $val(nn)
 
-$You can create multiple channels but IDK how to set up multiple channels 
+#You can create multiple channels but IDK how to set up multiple channels 
 #cuz it seems to only run one at a time when i try to set up multiple. Maybe 
 #because I only tried changing it at the same node? idk
 set channel1 [new $val(chan)]
